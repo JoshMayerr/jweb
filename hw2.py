@@ -22,6 +22,7 @@
 
 import argparse
 import statistics
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from bs4 import BeautifulSoup
 from google.cloud import storage
@@ -188,6 +189,12 @@ def run_test() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--test", action="store_true")
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=16,
+        help="Parallel GCS download workers (default 16, use 1 for sequential)",
+    )
     args = parser.parse_args()
 
     if args.test:
@@ -202,14 +209,34 @@ def main() -> None:
         print("No HTML blobs found.")
         return
 
+    n_blobs = len(blob_names)
+    print(f"Found {n_blobs} blobs, downloading and parsing...")
+
     blob_ids = {int(n.rsplit("/", 1)[-1].split(".", 1)[0]) for n in blob_names}
 
-    # used chatgpt to generate this code and speed up
-    def gcs_stream():
-        for name in blob_names:
-            yield download_and_parse_blob(bucket, name)
+    def gcs_stream(workers: int = 1):
+        if workers <= 1:
+            for name in blob_names:
+                yield download_and_parse_blob(bucket, name)
+            return
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            futures = {
+                ex.submit(download_and_parse_blob, bucket, name): name
+                for name in blob_names
+            }
+            for future in as_completed(futures):
+                yield future.result()
 
-    all_ids, adjacency_list = build_graph_from_stream(gcs_stream(), page_ids=blob_ids)
+    def progress_stream(stream, total: int, step: int = 1000):
+        for i, item in enumerate(stream, 1):
+            if i % step == 0 or i == total:
+                print(f"  {i}/{total} blobs")
+            yield item
+
+    all_ids, adjacency_list = build_graph_from_stream(
+        progress_stream(gcs_stream(workers=args.workers), n_blobs), page_ids=blob_ids
+    )
+    print("Building graph and running PageRank...")
     run_pipeline(all_ids, adjacency_list)
 
 

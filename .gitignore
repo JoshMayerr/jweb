@@ -1,3 +1,8 @@
 content/
 .venv
 web/
+
+*.md
+**/*.md
+!/README.md
+!hwk*/README.md

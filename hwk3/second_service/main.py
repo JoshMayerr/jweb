@@ -32,6 +32,8 @@ def get_project_id() -> str:
 
 def append_to_gcs_log(line: str) -> None:
     """Append a line to the GCS log file (read-modify-write)."""
+    if not (BUCKET_NAME and BUCKET_NAME.strip()):
+        return  # skip GCS when BUCKET is unset to avoid client errors
     client = storage.Client()
     bucket = client.bucket(BUCKET_NAME)
     blob = bucket.blob(LOG_PATH)
@@ -58,8 +60,17 @@ def process_message(data: bytes) -> None:
 
 def run() -> None:
     project_id = get_project_id()
+    if not BUCKET_NAME or BUCKET_NAME.strip() == "":
+        print("WARNING: BUCKET env is not set; GCS log append will fail. Set BUCKET to your bucket name.", file=sys.stderr)
     subscriber = pubsub_v1.SubscriberClient()
     subscription_path = subscriber.subscription_path(project_id, SUBSCRIPTION_ID)
+
+    try:
+        sub = subscriber.get_subscription(request={"subscription": subscription_path})
+        topic_name = sub.topic.split("/")[-1] if sub.topic else "?"
+        print(f"Subscription OK; topic: {topic_name}", file=sys.stderr)
+    except Exception as e:
+        print(f"WARNING: Could not get subscription (check name and IAM): {e}", file=sys.stderr)
 
     print(f"Listening on subscription {SUBSCRIPTION_ID} (project {project_id}). Ctrl+C to stop.", file=sys.stderr)
     print("Forbidden requests will be printed below and appended to gs://" + BUCKET_NAME + "/" + LOG_PATH, file=sys.stderr)

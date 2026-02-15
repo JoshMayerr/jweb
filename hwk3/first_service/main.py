@@ -36,6 +36,7 @@ def _publish_forbidden_event(country: str, path: str, object_name: str) -> None:
     """Publish a forbidden-request event to Pub/Sub for the second service."""
     project_id = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("GCP_PROJECT")
     if not project_id:
+        _structured_log("WARNING", "Skipping publish: GOOGLE_CLOUD_PROJECT not set", country=country, path=path)
         return
     payload = json.dumps({
         "country": country,
@@ -46,7 +47,8 @@ def _publish_forbidden_event(country: str, path: str, object_name: str) -> None:
     try:
         publisher = pubsub_v1.PublisherClient()
         topic_path = publisher.topic_path(project_id, FORBIDDEN_TOPIC)
-        publisher.publish(topic_path, payload)
+        message_id = publisher.publish(topic_path, payload).result()
+        _structured_log("INFO", f"Published forbidden event: message_id={message_id}", topic=FORBIDDEN_TOPIC, country=country, path=path)
     except Exception as e:
         _structured_log("ERROR", f"Failed to publish forbidden event: {e}", country=country, path=path)
 

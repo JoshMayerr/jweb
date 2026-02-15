@@ -68,7 +68,7 @@ gcloud functions deploy ${SERVICE_NAME} \
   --trigger-http \
   --allow-unauthenticated \
   --service-account=${SA_EMAIL} \
-  --set-env-vars="BUCKET=${BUCKET_NAME},FORBIDDEN_TOPIC=${FORBIDDEN_TOPIC}"
+  --set-env-vars="BUCKET=${BUCKET_NAME},FORBIDDEN_TOPIC=${FORBIDDEN_TOPIC},GOOGLE_CLOUD_PROJECT=${PROJECT_ID}"
 ```
 
 Deploy output gives the function URL. Test with:

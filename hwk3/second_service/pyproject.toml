@@ -1,0 +1,10 @@
+[project]
+name = "second-service"
+version = "0.1.0"
+description = "Forbidden-request logger: pulls from Pub/Sub, logs to GCS"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-cloud-pubsub>=2.18.0",
+    "google-cloud-storage>=2.14.0",
+]

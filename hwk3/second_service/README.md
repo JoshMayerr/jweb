@@ -4,7 +4,8 @@ Pulls forbidden-request events from Pub/Sub, prints to stdout, and appends to a 
 
 ## Prerequisite
 
-The service account and first-service permissions must already exist (see [../first_service/README.md](../first_service/README.md) steps 1–5). You need the SA email (e.g. `jweb-file-server-sa@PROJECT_ID.iam.gserviceaccount.com`).
+- **Python 3.12** and **uv** (this directory has its own `pyproject.toml`; uv creates a venv and installs deps—no pip needed).
+- The service account and first-service permissions must already exist (see [../first_service/README.md](../first_service/README.md) steps 1–5). You need the SA email (e.g. `jweb-file-server-sa@PROJECT_ID.iam.gserviceaccount.com`).
 
 ## CLI: Subscription, SA permissions, key, and run
 
@@ -57,12 +58,12 @@ gcloud iam service-accounts keys create ~/.config/jweb-sa-key.json \
 
 ```bash
 cd hwk3/second_service
-pip install -r requirements.txt
+uv sync   # create venv and install deps (uses pyproject.toml)
 export GOOGLE_APPLICATION_CREDENTIALS=~/.config/jweb-sa-key.json
 export BUCKET=${BUCKET_NAME}
 export FORBIDDEN_SUBSCRIPTION=${FORBIDDEN_SUB}
 export GOOGLE_CLOUD_PROJECT=${PROJECT_ID}
-python main.py
+uv run main.py
 ```
 
 Forbidden requests will be printed to stdout and appended to `gs://${BUCKET_NAME}/forbidden-logs/forbidden_requests.log`. Ctrl+C to stop.

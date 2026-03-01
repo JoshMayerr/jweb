@@ -1,4 +1,5 @@
 # HW4 — gcloud commands for manual copy-paste
+# VMs use Ubuntu 25.10 minimal (questing): same image for VM1, VM2, VM3.
 # Set these variables first (or substitute in commands):
 export PROJECT_ID=cs528-jm
 export ZONE=us-central1-c
@@ -33,9 +34,10 @@ gcloud iam service-accounts create ${SA_WEB_NAME} --display-name="jweb HW4 file 
 gcloud pubsub topics create ${FORBIDDEN_TOPIC}
 gcloud pubsub subscriptions create ${FORBIDDEN_SUB} --topic=${FORBIDDEN_TOPIC}
 
-# --- 5. Grant web server SA: read bucket + publish to topic ---
+# --- 5. Grant web server SA: read bucket + publish to topic + write logs ---
 gcloud storage buckets add-iam-policy-binding gs://${BUCKET_NAME} --member="serviceAccount:${SA_WEB_EMAIL}" --role="roles/storage.objectViewer"
 gcloud pubsub topics add-iam-policy-binding ${FORBIDDEN_TOPIC} --member="serviceAccount:${SA_WEB_EMAIL}" --role="roles/pubsub.publisher"
+gcloud projects add-iam-policy-binding ${PROJECT_ID} --member="serviceAccount:${SA_WEB_EMAIL}" --role="roles/logging.logWriter"
 
 # --- 6. Grant same SA: subscribe + write bucket (for second service on VM3) ---
 gcloud pubsub subscriptions add-iam-policy-binding ${FORBIDDEN_SUB} --member="serviceAccount:${SA_WEB_EMAIL}" --role="roles/pubsub.subscriber"
@@ -58,10 +60,10 @@ gcloud compute instances create ${VM_WEB_NAME} \
   --service-account=${SA_WEB_EMAIL} \
   --scopes=https://www.googleapis.com/auth/cloud-platform \
   --tags=http-server,https-server \
-  --create-disk=auto-delete=yes,boot=yes,device-name=${VM_WEB_NAME},image=projects/debian-cloud/global/images/debian-12-bookworm-v20260210,mode=rw,size=10,type=pd-balanced \
+  --create-disk=auto-delete=yes,boot=yes,device-name=${VM_WEB_NAME},image=projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2510-questing-amd64-v20260225,mode=rw,size=10,type=pd-balanced \
   --metadata-from-file startup-script=/Users/joshmayer/Developer/BU/spring26/cs528/jweb/hwk4/first_service/startup-server.sh
 
-# --- 9. Create VM2 — client (use manually: SSH in, copy code or clone, then run client) ---
+# --- 9. Create VM2 — client (Ubuntu 24.04 for newer glibc if using http-client binary) ---
 gcloud compute instances create ${VM_CLIENT_NAME} \
   --project=${PROJECT_ID} \
   --zone=${ZONE} \
@@ -70,7 +72,7 @@ gcloud compute instances create ${VM_CLIENT_NAME} \
   --maintenance-policy=MIGRATE \
   --provisioning-model=STANDARD \
   --tags=http-server,https-server \
-  --create-disk=auto-delete=yes,boot=yes,device-name=${VM_CLIENT_NAME},image=projects/debian-cloud/global/images/debian-12-bookworm-v20260210,mode=rw,size=10,type=pd-balanced
+  --create-disk=auto-delete=yes,boot=yes,device-name=${VM_CLIENT_NAME},image=projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2510-questing-amd64-v20260225,mode=rw,size=10,type=pd-balanced
 
 # --- 10. Create VM3 — forbidden-country subscriber (second service), startup script ---
 gcloud compute instances create ${VM_SUB_NAME} \
@@ -82,7 +84,7 @@ gcloud compute instances create ${VM_SUB_NAME} \
   --provisioning-model=STANDARD \
   --service-account=${SA_WEB_EMAIL} \
   --scopes=https://www.googleapis.com/auth/cloud-platform \
-  --create-disk=auto-delete=yes,boot=yes,device-name=${VM_SUB_NAME},image=projects/debian-cloud/global/images/debian-12-bookworm-v20260210,mode=rw,size=10,type=pd-balanced \
+  --create-disk=auto-delete=yes,boot=yes,device-name=${VM_SUB_NAME},image=projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2510-questing-amd64-v20260225,mode=rw,size=10,type=pd-balanced \
   --metadata-from-file startup-script=/Users/joshmayer/Developer/BU/spring26/cs528/jweb/hwk4/second_service/startup-subscriber.sh
 
 # --- Optional: teardown (delete VMs and release static IP) ---

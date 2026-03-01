@@ -9,7 +9,8 @@ import sys
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-from google.cloud import storage, pubsub_v1
+from google.cloud import storage
+from google.cloud import pubsub_v1
 import google.cloud.logging
 
 BUCKET_NAME = os.environ.get("BUCKET", "jweb-content")
@@ -69,14 +70,21 @@ def _publish_forbidden_event(country: str, path: str, object_name: str) -> None:
 
 
 class GCSFileHandler(BaseHTTPRequestHandler):
+    def _send_error_response(self, code: int, short: str, body: bytes = b"") -> None:
+        """Send a proper HTTP error response (404, 501, etc.) without using send_error()."""
+        self.send_response(code, short)
+        self.send_header("Content-Type", "text/plain")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        if body:
+            self.wfile.write(body)
+
     def _send_501(self, method: str) -> None:
-        _log(
-            "WARNING",
-            f"Request method not implemented: {method}",
-            status=501,
-            method=method,
-        )
-        self.send_error(501, "Not Implemented", f"Method {method} not implemented")
+        self._send_error_response(501, "Not Implemented", f"Method {method} not implemented".encode())
+        try:
+            _log("WARNING", f"Request method not implemented: {method}", status=501, method=method)
+        except Exception:
+            pass
 
     def do_GET(self) -> None:
         path = (self.path or "").split("?")[0].strip()
@@ -86,24 +94,23 @@ class GCSFileHandler(BaseHTTPRequestHandler):
         x_country = (self.headers.get("X-country") or "").strip().lower()
         if x_country and x_country in FORBIDDEN_COUNTRIES:
             obj = object_name or "(root)"
-            _log(
-                "CRITICAL",
-                f"Forbidden request from restricted country: {x_country}",
-                status=400,
-                country=x_country,
-                path=path,
-                object_name=obj,
-            )
-            _publish_forbidden_event(x_country, path, obj)
             self.send_response(400)
             self.send_header("Content-Type", "text/plain")
             self.end_headers()
             self.wfile.write(b"Permission denied")
+            try:
+                _log("CRITICAL", f"Forbidden request from restricted country: {x_country}", status=400, country=x_country, path=path, object_name=obj)
+                _publish_forbidden_event(x_country, path, obj)
+            except Exception:
+                pass
             return
 
         if not object_name or ".." in object_name:
-            _log("WARNING", f"File not found (invalid path): {path}", status=404, path=path)
-            self.send_error(404, "Not Found", "Invalid or missing path")
+            self._send_error_response(404, "Not Found", b"Not Found")
+            try:
+                _log("WARNING", f"File not found (invalid path): {path}", status=404, path=path)
+            except Exception:
+                pass
             return
 
         try:
@@ -111,26 +118,29 @@ class GCSFileHandler(BaseHTTPRequestHandler):
             bucket = client.bucket(BUCKET_NAME)
             blob = bucket.blob(object_name)
         except Exception as e:
-            _log("ERROR", f"GCS error: {e}", path=path, object_name=object_name)
-            self.send_error(500, "Internal Server Error")
+            self._send_error_response(500, "Internal Server Error", b"Internal Server Error")
+            try:
+                _log("ERROR", f"GCS error: {e}", path=path, object_name=object_name)
+            except Exception:
+                pass
             return
 
         if not blob.exists():
-            _log(
-                "WARNING",
-                f"File not found: {object_name}",
-                status=404,
-                path=path,
-                object_name=object_name,
-            )
-            self.send_error(404, "Not Found", f"Object not found: {object_name}")
+            self._send_error_response(404, "Not Found", b"Not Found")
+            try:
+                _log("WARNING", f"File not found: {object_name}", status=404, path=path, object_name=object_name)
+            except Exception:
+                pass
             return
 
         try:
             content = blob.download_as_bytes()
         except Exception as e:
-            _log("ERROR", f"Failed to download: {e}", path=path, object_name=object_name)
-            self.send_error(500, "Internal Server Error")
+            self._send_error_response(500, "Internal Server Error", b"Internal Server Error")
+            try:
+                _log("ERROR", f"Failed to download: {e}", path=path, object_name=object_name)
+            except Exception:
+                pass
             return
 
         self.send_response(200)

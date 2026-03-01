@@ -20,6 +20,10 @@ gcloud config set compute/zone ${ZONE}
 # --- 2. Enable APIs ---
 gcloud services enable compute.googleapis.com storage.googleapis.com pubsub.googleapis.com logging.googleapis.com
 
+# --- 2b. Allow ports 80 and 8080 to VMs with tag http-server (so curl to VM1 works) ---
+# If the rule already exists, delete it first: gcloud compute firewall-rules delete allow-jweb-http --quiet
+gcloud compute firewall-rules create allow-jweb-http --project=${PROJECT_ID} --network=default --allow tcp:80,tcp:8080 --source-ranges 0.0.0.0/0 --target-tags http-server --description "HW4 web server"
+
 # --- 3. Create service account for web server (VM1) ---
 # If you already have this SA from HW3 (jweb-file-server-sa), skip this step.
 gcloud iam service-accounts create ${SA_WEB_NAME} --display-name="jweb HW4 file server VM"

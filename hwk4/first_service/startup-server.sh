@@ -3,6 +3,13 @@
 set -e
 export DEBIAN_FRONTEND=noninteractive
 
+LOCK_FILE=/var/log/startup_already_done
+
+if [ -f "${LOCK_FILE}" ]; then
+  echo "Startup script already ran once. Skipping."
+  exit 0
+fi
+
 PROJECT_ID="cs528-jm"
 GIT_REPO_URL="https://github.com/joshmayerr/jweb.git"
 
@@ -19,4 +26,8 @@ cd /tmp/jweb/hwk4/first_service
 python3 -m venv /opt/jweb-venv
 /opt/jweb-venv/bin/pip install -r requirements.txt
 nohup /opt/jweb-venv/bin/python server.py </dev/null >>/var/log/jweb-server.log 2>&1 &
+
+touch "${LOCK_FILE}"
+
 exit 0
+

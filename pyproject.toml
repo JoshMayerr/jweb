@@ -7,3 +7,10 @@ requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.14.3",
 ]
+
+[tool.uv.workspace]
+members = [
+    "hwk5/first_service",
+    "hwk5/second_service",
+    "hwk5/cloud_function",
+]

@@ -1,0 +1,9 @@
+[project]
+name = "cloud-function"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "functions-framework>=3.10.1",
+    "google-api-python-client>=2.193.0",
+]

@@ -1,0 +1,9 @@
+[project]
+name = "second-service"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "google-cloud-pubsub>=2.36.0",
+    "google-cloud-storage>=3.10.0",
+]

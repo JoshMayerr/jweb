@@ -1,0 +1,12 @@
+[project]
+name = "first-service"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "cloud-sql-python-connector[pymysql]>=1.20.1",
+    "google-cloud-logging>=3.14.0",
+    "google-cloud-pubsub>=2.36.0",
+    "google-cloud-storage>=3.10.0",
+    "pymysql>=1.1.2",
+]

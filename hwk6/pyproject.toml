@@ -1,0 +1,12 @@
+[project]
+name = "hwk6"
+version = "0.1.0"
+description = "HW6 model training pipeline"
+requires-python = ">=3.12"
+dependencies = [
+    "cloud-sql-python-connector[pymysql]>=1.20.1",
+    "google-cloud-storage>=3.10.0",
+    "pandas>=2.3.2",
+    "pymysql>=1.1.2",
+    "scikit-learn>=1.7.2",
+]

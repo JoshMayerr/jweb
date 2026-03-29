@@ -15,6 +15,20 @@ def stop_cloud_sql(request):
     )
     current_state = instance.get("state", "UNKNOWN")
     if current_state == "RUNNABLE":
-        service.instances().stop(project=project_id, instance=instance_name).execute()
+        settings = instance.get("settings", {})
+        settings_version = settings.get("settingsVersion")
+        patch_body = {
+            "settings": {
+                "activationPolicy": "NEVER",
+            }
+        }
+        if settings_version is not None:
+            patch_body["settings"]["settingsVersion"] = settings_version
+
+        service.instances().patch(
+            project=project_id,
+            instance=instance_name,
+            body=patch_body,
+        ).execute()
         return {"status": "stopping", "instance": instance_name}, 200
     return {"status": "already-stopped", "instance": instance_name, "state": current_state}, 200

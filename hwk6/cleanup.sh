@@ -6,7 +6,7 @@ export PROJECT_ID="${PROJECT_ID:-cs528-jm}"
 export ZONE="${ZONE:-us-central1-c}"
 export REGION="${REGION:-us-central1}"
 export VM_TRAIN_NAME="${VM_TRAIN_NAME:-jweb-hwk6-trainer}"
-export DB_INSTANCE_NAME="${DB_INSTANCE_NAME:-jweb-hwk5-mysql}"
+export DB_INSTANCE_NAME="${DB_INSTANCE_NAME:-hwk6}"
 
 echo "Stopping HW6 resources in PROJECT_ID=${PROJECT_ID}, ZONE=${ZONE}, REGION=${REGION}"
 

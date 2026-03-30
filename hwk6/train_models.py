@@ -73,6 +73,39 @@ def build_model() -> Pipeline:
     )
 
 
+def train_country_lookup_model(data_frame: pd.DataFrame) -> tuple[float, int]:
+    working_frame = data_frame[["client_ip", "country"]].copy()
+    working_frame["country"] = working_frame["country"].astype(str)
+
+    if len(working_frame) < 5:
+        raise ValueError("Not enough rows to train country model. Need at least 5 rows.")
+    if working_frame["country"].nunique() < 2:
+        raise ValueError("Need at least two target classes to train country model.")
+
+    train_frame, test_frame = train_test_split(
+        working_frame,
+        test_size=0.2,
+        random_state=RANDOM_SEED,
+        stratify=choose_stratify_target(working_frame["country"]),
+    )
+
+    country_by_ip = (
+        train_frame.groupby("client_ip")["country"]
+        .agg(lambda values: values.mode().iat[0] if not values.mode().empty else values.iloc[0])
+        .to_dict()
+    )
+    fallback_country = train_frame["country"].mode().iat[0]
+
+    test_predictions = test_frame["client_ip"].map(country_by_ip).fillna(fallback_country)
+    accuracy = accuracy_score(test_frame["country"], test_predictions)
+
+    prediction_frame = test_frame.copy()
+    prediction_frame = prediction_frame.rename(columns={"country": "actual_country"})
+    prediction_frame["predicted_country"] = test_predictions.values
+    prediction_frame.to_csv(OUTPUT_DIR / "country_predictions.csv", index=False)
+    return accuracy, len(working_frame)
+
+
 def train_and_save_predictions(
     data_frame: pd.DataFrame,
     feature_columns: list[str],
@@ -126,12 +159,7 @@ def main() -> None:
     storage_client = storage.Client()
     bucket = storage_client.bucket(os.environ["BUCKET"])
 
-    country_accuracy, country_rows = train_and_save_predictions(
-        data_frame,
-        feature_columns=["client_ip"],
-        target_column="country",
-        output_name="country_predictions.csv",
-    )
+    country_accuracy, country_rows = train_country_lookup_model(data_frame)
     print(f"Country model accuracy: {country_accuracy:.4f}")
 
     income_accuracy, income_rows = train_and_save_predictions(

@@ -9,16 +9,13 @@ export BUCKET_NAME="${BUCKET_NAME:-jweb-content}"
 export SA_NAME="${SA_NAME:-jweb-hwk6-sa}"
 export SA_EMAIL="${SA_EMAIL:-${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com}"
 export VM_TRAIN_NAME="${VM_TRAIN_NAME:-jweb-hwk6-trainer}"
-export DB_INSTANCE_NAME="${DB_INSTANCE_NAME:-jweb-hwk5-mysql}"
-export DB_NAME="${DB_NAME:-jwebhw5}"
-export DB_USER="${DB_USER:-hw5user}"
-export DB_PASSWORD="${DB_PASSWORD:-hw5password}"
+export DB_INSTANCE_NAME="${DB_INSTANCE_NAME:-hwk6}"
+export DB_NAME="${DB_NAME:-hwk6_db}"
+export DB_USER="${DB_USER:-josh}"
+export DB_PASSWORD="${DB_PASSWORD:-cs598}"
 export TRAIN_MACHINE_TYPE="${TRAIN_MACHINE_TYPE:-e2-small}"
 export RESULTS_PREFIX="${RESULTS_PREFIX:-hwk6-results}"
 export GIT_REPO_URL="${GIT_REPO_URL:-https://github.com/joshmayerr/jweb.git}"
-export RESULT_WAIT_SECONDS="${RESULT_WAIT_SECONDS:-1200}"
-export RESULT_POLL_SECONDS="${RESULT_POLL_SECONDS:-20}"
-
 echo "Using PROJECT_ID=${PROJECT_ID}, ZONE=${ZONE}, REGION=${REGION}"
 
 gcloud config set project "${PROJECT_ID}"
@@ -32,6 +29,18 @@ gcloud services enable \
 
 gcloud iam service-accounts create "${SA_NAME}" \
   --display-name="jweb HW6 service account" 2>/dev/null || true
+
+for _ in $(seq 1 12); do
+  if gcloud iam service-accounts describe "${SA_EMAIL}" >/dev/null 2>&1; then
+    break
+  fi
+  sleep 5
+done
+
+gcloud iam service-accounts describe "${SA_EMAIL}" >/dev/null 2>&1 || {
+  echo "Service account ${SA_EMAIL} was not found after creation attempt."
+  exit 1
+}
 
 gcloud storage buckets add-iam-policy-binding "gs://${BUCKET_NAME}" \
   --member="serviceAccount:${SA_EMAIL}" \
@@ -74,39 +83,9 @@ gcloud compute instances create "${VM_TRAIN_NAME}" \
   --metadata-from-file startup-script=hwk6/startup-trainer.sh
 
 echo "Created VM ${VM_TRAIN_NAME}. Waiting for results in gs://${BUCKET_NAME}/${RESULTS_PREFIX}/"
-
-deadline=$(( $(date +%s) + RESULT_WAIT_SECONDS ))
-metrics_uri="gs://${BUCKET_NAME}/${RESULTS_PREFIX}/metrics.txt"
-country_uri="gs://${BUCKET_NAME}/${RESULTS_PREFIX}/country_predictions.csv"
-income_uri="gs://${BUCKET_NAME}/${RESULTS_PREFIX}/income_predictions.csv"
-
-until gcloud storage ls "${metrics_uri}" >/dev/null 2>&1; do
-  if [ "$(date +%s)" -ge "${deadline}" ]; then
-    echo "Timed out waiting for ${metrics_uri}."
-    echo "Inspect VM log with: gcloud compute ssh ${VM_TRAIN_NAME} --zone=${ZONE} --command='sudo tail -n 100 /var/log/jweb-hwk6-trainer.log'"
-    exit 1
-  fi
-  sleep "${RESULT_POLL_SECONDS}"
-done
-
-temp_dir="$(mktemp -d)"
-trap 'rm -rf "${temp_dir}"' EXIT
-
-gcloud storage cp "${metrics_uri}" "${temp_dir}/metrics.txt"
-gcloud storage cp "${country_uri}" "${temp_dir}/country_predictions.csv"
-gcloud storage cp "${income_uri}" "${temp_dir}/income_predictions.csv"
-
-echo
-echo "metrics.txt"
-cat "${temp_dir}/metrics.txt"
-echo
-echo "country_predictions.csv"
-sed -n '1,10p' "${temp_dir}/country_predictions.csv"
-echo
-echo "income_predictions.csv"
-sed -n '1,10p' "${temp_dir}/income_predictions.csv"
-echo
 echo "HW6 setup complete."
 echo "Training VM: ${VM_TRAIN_NAME}"
 echo "Cloud SQL instance: ${DB_INSTANCE_NAME}"
 echo "Results prefix: gs://${BUCKET_NAME}/${RESULTS_PREFIX}/"
+echo "Check the VM log with: gcloud compute ssh ${VM_TRAIN_NAME} --zone=${ZONE} --command='sudo tail -n 100 /var/log/jweb-hwk6-trainer.log'"
+echo "Check uploaded results with: gcloud storage ls gs://${BUCKET_NAME}/${RESULTS_PREFIX}/"

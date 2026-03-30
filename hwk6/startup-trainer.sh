@@ -39,6 +39,7 @@ export DB_USER="${DB_USER_VALUE}"
 export DB_PASSWORD="${DB_PASSWORD_VALUE}"
 export INSTANCE_CONNECTION_NAME="${INSTANCE_CONNECTION_NAME_VALUE}"
 export RESULTS_PREFIX="${RESULTS_PREFIX_VALUE}"
+export PYTHONUNBUFFERED=1
 
 uv sync --project hwk6
 nohup uv run --project hwk6 hwk6/train_models.py \

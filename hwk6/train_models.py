@@ -68,7 +68,14 @@ def build_model() -> Pipeline:
     return Pipeline(
         [
             ("vectorizer", DictVectorizer(sparse=True)),
-            ("classifier", DecisionTreeClassifier(random_state=RANDOM_SEED)),
+            (
+                "classifier",
+                DecisionTreeClassifier(
+                    random_state=RANDOM_SEED,
+                    max_depth=20,
+                    min_samples_leaf=10,
+                ),
+            ),
         ]
     )
 
@@ -161,6 +168,7 @@ def main() -> None:
 
     country_accuracy, country_rows = train_country_lookup_model(data_frame)
     print(f"Country model accuracy: {country_accuracy:.4f}")
+    print("Starting income model training...")
 
     income_accuracy, income_rows = train_and_save_predictions(
         data_frame,

@@ -6,3 +6,7 @@ web/
 **/*.md
 !/README.md
 !hwk*/README.md
+
+
+__pycache__/
+output/

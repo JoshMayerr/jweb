@@ -41,8 +41,8 @@ export INSTANCE_CONNECTION_NAME="${INSTANCE_CONNECTION_NAME_VALUE}"
 export RESULTS_PREFIX="${RESULTS_PREFIX_VALUE}"
 export PYTHONUNBUFFERED=1
 
-uv sync --project hwk6
-nohup uv run --project hwk6 hwk6/train_models.py \
+uv sync --project hw6
+nohup uv run --project hw6 hw6/train_models.py \
   </dev/null >"${LOG_FILE}" 2>&1 &
 
 touch "${LOCK_FILE}"

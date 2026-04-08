@@ -37,8 +37,8 @@ export DB_PASSWORD="${DB_PASSWORD_VALUE}"
 export INSTANCE_CONNECTION_NAME="${INSTANCE_CONNECTION_NAME_VALUE}"
 export TIMING_LOG_INTERVAL="1000"
 
-uv sync --project hwk5/first_service
-nohup uv run --project hwk5/first_service hwk5/first_service/main.py \
+uv sync --project hw5/first_service
+nohup uv run --project hw5/first_service hw5/first_service/main.py \
   </dev/null >/var/log/jweb-hwk5-server.log 2>&1 &
 
 touch "${LOCK_FILE}"

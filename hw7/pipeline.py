@@ -13,7 +13,7 @@ from apache_beam.options.pipeline_options import PipelineOptions
 
 
 LOCAL_INPUT = "/Users/joshmayer/Developer/BU/spring26/cs528/jweb/web/*.html"
-LOCAL_OUTPUT = "/Users/joshmayer/Developer/BU/spring26/cs528/jweb/hwk7/output/local"
+LOCAL_OUTPUT = "/Users/joshmayer/Developer/BU/spring26/cs528/jweb/hw7/output/local"
 CLOUD_INPUT = "gs://jweb-content/web/*.html"
 CLOUD_OUTPUT = "gs://jweb-content/hwk7/output"
 

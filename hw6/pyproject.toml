@@ -1,5 +1,5 @@
 [project]
-name = "hwk6"
+name = "hw6"
 version = "0.1.0"
 description = "HW6 model training pipeline"
 requires-python = ">=3.12"

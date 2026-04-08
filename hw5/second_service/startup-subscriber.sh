@@ -26,8 +26,8 @@ export GOOGLE_CLOUD_PROJECT="${PROJECT_ID}"
 export BUCKET="${BUCKET_NAME}"
 export FORBIDDEN_SUBSCRIPTION="${FORBIDDEN_SUBSCRIPTION}"
 
-uv sync --project hwk5/second_service
-nohup uv run --project hwk5/second_service hwk5/second_service/main.py \
+uv sync --project hw5/second_service
+nohup uv run --project hw5/second_service hw5/second_service/main.py \
   </dev/null >/var/log/jweb-hwk5-subscriber.log 2>&1 &
 
 touch "${LOCK_FILE}"

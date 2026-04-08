@@ -10,7 +10,7 @@ dependencies = [
 
 [tool.uv.workspace]
 members = [
-    "hwk5/first_service",
-    "hwk5/second_service",
-    "hwk5/cloud_function",
+    "hw5/first_service",
+    "hw5/second_service",
+    "hw5/cloud_function",
 ]

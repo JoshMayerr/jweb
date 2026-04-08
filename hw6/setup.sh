@@ -80,7 +80,7 @@ gcloud compute instances create "${VM_TRAIN_NAME}" \
   --scopes=https://www.googleapis.com/auth/cloud-platform \
   --create-disk=auto-delete=yes,boot=yes,image-family=ubuntu-2404-lts-amd64,image-project=ubuntu-os-cloud,size=10,type=pd-balanced \
   --metadata=PROJECT_ID="${PROJECT_ID}",GIT_REPO_URL="${GIT_REPO_URL}",BUCKET_NAME="${BUCKET_NAME}",DB_NAME="${DB_NAME}",DB_USER="${DB_USER}",DB_PASSWORD="${DB_PASSWORD}",INSTANCE_CONNECTION_NAME="${INSTANCE_CONNECTION_NAME}",RESULTS_PREFIX="${RESULTS_PREFIX}" \
-  --metadata-from-file startup-script=hwk6/startup-trainer.sh
+  --metadata-from-file startup-script=hw6/startup-trainer.sh
 
 echo "Created VM ${VM_TRAIN_NAME}. Waiting for results in gs://${BUCKET_NAME}/${RESULTS_PREFIX}/"
 echo "HW6 setup complete."

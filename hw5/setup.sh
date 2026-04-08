@@ -101,12 +101,12 @@ gcloud sql users set-password "${DB_USER}" --instance="${DB_INSTANCE_NAME}" --pa
 export INSTANCE_CONNECTION_NAME
 INSTANCE_CONNECTION_NAME="$(gcloud sql instances describe "${DB_INSTANCE_NAME}" --format='value(connectionName)')"
 
-uv sync --project hwk5/first_service
+uv sync --project hw5/first_service
 INSTANCE_CONNECTION_NAME="${INSTANCE_CONNECTION_NAME}" \
 DB_NAME="${DB_NAME}" \
 DB_USER="${DB_USER}" \
 DB_PASSWORD="${DB_PASSWORD}" \
-uv run --project hwk5/first_service hwk5/init_db.py
+uv run --project hw5/first_service hw5/init_db.py
 
 gcloud compute addresses create "${STATIC_IP_NAME}" --region="${REGION}" 2>/dev/null || true
 export WEB_STATIC_IP
@@ -123,7 +123,7 @@ gcloud compute instances create "${VM_WEB_NAME}" \
   --scopes=https://www.googleapis.com/auth/cloud-platform \
   --tags=http-server,https-server \
   --create-disk=auto-delete=yes,boot=yes,image-family=ubuntu-2404-lts-amd64,image-project=ubuntu-os-cloud,size=10,type=pd-balanced \
-  --metadata-from-file startup-script=hwk5/first_service/startup-server.sh
+  --metadata-from-file startup-script=hw5/first_service/startup-server.sh
 
 gcloud compute instances create "${VM_SUB_NAME}" \
   --project="${PROJECT_ID}" \
@@ -135,13 +135,13 @@ gcloud compute instances create "${VM_SUB_NAME}" \
   --service-account="${SA_EMAIL}" \
   --scopes=https://www.googleapis.com/auth/cloud-platform \
   --create-disk=auto-delete=yes,boot=yes,image-family=ubuntu-2404-lts-amd64,image-project=ubuntu-os-cloud,size=10,type=pd-balanced \
-  --metadata-from-file startup-script=hwk5/second_service/startup-subscriber.sh
+  --metadata-from-file startup-script=hw5/second_service/startup-subscriber.sh
 
 gcloud functions deploy "${FUNCTION_NAME}" \
   --gen2 \
   --runtime=python312 \
   --region="${REGION}" \
-  --source=hwk5/cloud_function \
+  --source=hw5/cloud_function \
   --entry-point=stop_cloud_sql \
   --trigger-http \
   --allow-unauthenticated \

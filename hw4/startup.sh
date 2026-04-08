@@ -33,7 +33,7 @@ apt-get update -y
 apt-get install -y python3 python3-venv git
 
 git clone "${GIT_REPO_URL}" /tmp/jweb || { echo "Clone failed."; exit 1; }
-cd /tmp/jweb/hwk4/first_service
+cd /tmp/jweb/hw4/first_service
 
 python3 -m venv /opt/jweb-venv
 /opt/jweb-venv/bin/pip install -r requirements.txt
@@ -45,4 +45,3 @@ touch "${LOCK_FILE}"
 echo "HW4 web server startup completed."
 
 exit 0
-

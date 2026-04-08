@@ -21,7 +21,7 @@ export BUCKET="jweb-content"
 export FORBIDDEN_SUBSCRIPTION="jweb-forbidden-sub"
 
 git clone "$GIT_REPO_URL" /tmp/jweb || { echo "Clone failed."; exit 1; }
-cd /tmp/jweb/hwk4/second_service
+cd /tmp/jweb/hw4/second_service
 python3 -m venv /opt/jweb-sub-venv
 /opt/jweb-sub-venv/bin/pip install -r requirements.txt
 nohup /opt/jweb-sub-venv/bin/python main.py </dev/null >>/var/log/jweb-subscriber.log 2>&1 &
@@ -29,4 +29,3 @@ nohup /opt/jweb-sub-venv/bin/python main.py </dev/null >>/var/log/jweb-subscribe
 touch "${LOCK_FILE}"
 
 exit 0
-

@@ -22,7 +22,7 @@ export FORBIDDEN_TOPIC="jweb-forbidden"
 export PORT="80"
 
 git clone "$GIT_REPO_URL" /tmp/jweb || { echo "Clone failed."; exit 1; }
-cd /tmp/jweb/hwk4/first_service
+cd /tmp/jweb/hw4/first_service
 python3 -m venv /opt/jweb-venv
 /opt/jweb-venv/bin/pip install -r requirements.txt
 nohup /opt/jweb-venv/bin/python server.py </dev/null >>/var/log/jweb-server.log 2>&1 &
@@ -30,4 +30,3 @@ nohup /opt/jweb-venv/bin/python server.py </dev/null >>/var/log/jweb-server.log 
 touch "${LOCK_FILE}"
 
 exit 0
-

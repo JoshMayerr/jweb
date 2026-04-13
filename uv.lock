@@ -11,6 +11,7 @@ resolution-markers = [
 members = [
     "cloud-function",
     "first-service",
+    "hw8",
     "jweb",
     "second-service",
 ]
@@ -922,6 +923,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/c1/1f/e86365613582c027d
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2f/90/fd509079dfcab01102c0fdd87f3a9506894bc70afcf9e9785ef6b2b3aff6/httplib2-0.31.2-py3-none-any.whl", hash = "sha256:dbf0c2fa3862acf3c55c078ea9c0bc4481d7dc5117cae71be9514912cf9f8349", size = 91099, upload-time = "2026-01-23T11:04:42.78Z" },
 ]
+
+[[package]]
+name = "hw8"
+version = "0.1.0"
+source = { virtual = "hw8" }
+dependencies = [
+    { name = "google-cloud-storage" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "google-cloud-storage", specifier = ">=3.10.0" }]
 
 [[package]]
 name = "idna"

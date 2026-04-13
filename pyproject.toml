@@ -13,4 +13,5 @@ members = [
     "hw5/first_service",
     "hw5/second_service",
     "hw5/cloud_function",
+    "hw8",
 ]

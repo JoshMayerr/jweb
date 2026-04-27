@@ -1,0 +1,11 @@
+[project]
+name = "hw9"
+version = "0.1.0"
+description = "CS528 Homework 9 GKE web server and monitor app"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-cloud-logging>=3.14.0",
+    "google-cloud-pubsub>=2.36.0",
+    "google-cloud-storage>=3.10.0",
+]

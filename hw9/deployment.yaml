@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hw9-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hw9-web
+  template:
+    metadata:
+      labels:
+        app: hw9-web
+    spec:
+      containers:
+        - name: hw9-web
+          image: REGION-docker.pkg.dev/PROJECT_ID/REPOSITORY/hw9-web:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: BUCKET
+              value: jweb-content
+            - name: FORBIDDEN_TOPIC
+              value: jweb-forbidden
+            - name: LOG_NAME
+              value: hw9-web
+            - name: GOOGLE_CLOUD_PROJECT
+              value: PROJECT_ID

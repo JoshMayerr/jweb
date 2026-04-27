@@ -12,6 +12,7 @@ members = [
     "cloud-function",
     "first-service",
     "hw8",
+    "hw9",
     "jweb",
     "second-service",
 ]
@@ -934,6 +935,23 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [{ name = "google-cloud-storage", specifier = ">=3.10.0" }]
+
+[[package]]
+name = "hw9"
+version = "0.1.0"
+source = { virtual = "hw9" }
+dependencies = [
+    { name = "google-cloud-logging" },
+    { name = "google-cloud-pubsub" },
+    { name = "google-cloud-storage" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "google-cloud-logging", specifier = ">=3.14.0" },
+    { name = "google-cloud-pubsub", specifier = ">=2.36.0" },
+    { name = "google-cloud-storage", specifier = ">=3.10.0" },
+]
 
 [[package]]
 name = "idna"
